@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plant AI | Health Detector</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #11d80aef;
+      --dark: #0b0f1a;
+      --accent: #26c6da;
+      --shadow: rgba(0, 0, 0, 0.5);
+      --glow:  0 0 20px #00ffc8, 0 0 40px #00ffc8;
+      --text-light: #eee;
+    }
+    body {
+  background: #1c1b1f; /* dark matte background */
+  color: #f3e5ab; /* warm text */
+  font-family: 'Poppins', sans-serif;
+}
+@media(max-width:768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .menu-toggle {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+  }
+
+  nav {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 1rem;
+  }
+
+  nav.show {
+    display: flex;
+  }
+
+  nav a {
+    padding: 0.8rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+  }
+}
+
+  .modal-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100%; width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+  /* Add at bottom of your <style> */
+body.dark-theme {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+}
+
+body.dark-theme header,
+body.dark-theme .sidebar {
+  background-color: #1a252f;
+}
+
+body.dark-theme nav a,
+body.dark-theme .sidebar a,
+body.dark-theme button {
+  color: #f0f0f0;
+}
+#universalThemeToggle {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1001;
+  font-size: 20px;
+  padding: 8px 10px;
+  background-color: #fff;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark-theme #universalThemeToggle {
+  background-color: #333;
+  color: #fff;
+}
+
+
+
+  .modal {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    box-shadow: 0 0 10px #00000033;
+    position: relative;
+  }
+
+  .modal input {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 8px;
+
+  }
+  /* BASE (Light Mode) */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  color: #222;
+}
+
+header {
+  background-color: #ffffff;
+  padding: 1rem;
+  color: #333;
+}
+
+nav a {
+  color: #333;
+  text-decoration: none;
+  margin-right: 15px;
+}
+
+.sidebar {
+  background-color: #f5f5f5;
+}
+
+/* DARK THEME */
+body.dark-theme {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+body.dark-theme header {
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+}
+
+body.dark-theme nav a {
+  color: #f5f5f5;
+}
+
+body.dark-theme .sidebar {
+  background-color: #f8f2f2;
+}
+
+body.dark-theme section,
+body.dark-theme main,
+body.dark-theme footer {
+  background-color: #121212;
+  color: #f5f5f5;
+}
+
+body.dark-theme input,
+body.dark-theme textarea {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border: 1px solid #555;
+}
+
+
+  .modal button.close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .modal button {
+    width: 100%;
+    padding: 8px;
+    background: #e63946;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  nav a {
+    margin-right: 15px;
+    cursor: pointer;
+  }
+
+
+
+h1, h2, h3 {
+  color: #ffb347; /* warm amber/gold */
+  text-shadow: 0 0 5px rgba(255, 179, 71, 0.4);
+}
+
+    *, *::before, *::after {
+      margin:0; padding:0; box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background: var(--dark);
+      color: var(--text-light);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+    body::before {
+      content:'';
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background:
+        radial-gradient(circle, rgba(0,255,194,0.15) 10%, transparent 80%),
+        radial-gradient(circle, rgba(255,0,255,0.08) 20%, transparent 70%);
+      animation:sparkle 12s linear infinite;
+      z-index:-1;
+    }
+    @keyframes sparkle {
+      0% { background-position:0 0,100% 100%; }
+      100% { background-position:100% 100%,0 0; }
+    }
+
+    header {
+      padding:14px 2rem;
+      display:flex; justify-content:space-between; align-items:center;
+      background: rgba(139, 103, 103, 0.103); backdrop-filter: blur(12px);
+      position:sticky; top:0; z-index:20;
+      height: 60px;
+    }
+    header h2{
+      color:var(--primary); font-size:clamp(10px,2vw,13px);
+      text-shadow: var(--glow);
+      display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 1rem;
+  gap: 1rem; /* <-- adds space between children */
+    }
+    .menu-toggle { display:none; font-size:1.5rem; cursor:pointer; color: var(--text-light); }
+    nav {
+      display:flex; gap:1rem;
+    }
+    nav a, .auth-link {
+      color:#ddd; text-decoration:none; font-weight:600;
+      transition: color .3s;
+    }
+    nav a:hover, .auth-link:hover { color:var(--primary); }
+
+    .container {
+      max-width:700px; width:90%; margin:4rem auto; text-align:center;
+      background: rgba(255,255,255,0.03);
+      padding:2rem; border-radius:20px;
+      box-shadow:0 0 30px rgba(28, 29, 29, 0.822);
+      backdrop-filter: blur(8px);
+    }
+
+    h1,h2{ font-size:clamp(1.6rem,5vw,2.4rem); color: var(--primary); text-shadow:var(--glow); margin-bottom:1rem; }
+
+    .upload-area{
+      border:2px dashed var(--primary); padding:2rem; border-radius:12px;
+      background: rgba(255,255,255,0.05); cursor:pointer;
+      transition: background .3s, transform .3s;
+    }
+    .upload-area:hover, .upload-area:focus {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-3px);
+    }
+    input[type="file"]{ display:none; }
+    .preview{ max-width:100%; margin:1rem 0; border-radius:8px; box-shadow: var(--glow); }
+    .result{ margin-top:1rem; padding:1rem; background: rgba(0,0,0,0.4); border-radius:8px; border:1px solid var(--primary); }
+
+    .modal-backdrop{
+      position:fixed; top:0;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,0.9); z-index:100; display:flex;
+      justify-content:center; align-items:center;
+      padding:1rem;
+    }
+    .modal input {
+  width: 100%;
+  font-size: 1.1rem;
+}
+
+    .modal{
+      background:var(--dark); padding:2rem; border-radius:16px;
+      width:100%; max-width:400px; position:relative;
+      box-shadow:var(--glow);
+      color:#fff; text-align:center;
+      animation:fadeIn .4s ease;
+      max-height:90vh; overflow-y:auto;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:scale(0.9);} to{opacity:1;transform:scale(1);} }
+    .modal h3{ margin-bottom:1rem; color:var(--primary); font-size:1.6rem; text-shadow:var(--glow);}
+    .modal input, .modal button{ width:100%; margin:0.6rem 0; padding:0.8rem; border:none; border-radius:6px; background:#1c1f2b; color:#fff; font-size:clamp(1rem,3vw,1.2rem); }
+    .modal button{ background: var(--primary); color:#111; font-weight:600; box-shadow:var(--glow); transition:opacity .3s; }
+    .modal button:hover{ opacity:.9; }
+    .modal .close{
+      position: absolute;
+top: 14px;
+right: 16px;
+background: transparent;
+border: none;
+cursor: pointer;
+font-size: 1.5rem;
+color: #888;
+}
+    .toggle{ margin-top:1rem; font-size:0.9rem; color:#ccc; }
+
+    .feedback-form input, .feedback-form textarea, .feedback-form select{
+      width:100%; margin-top:1rem; padding:0.6rem; border-radius:6px; border:none;
+      background:#1c1f2b; color:#fff; font-size:clamp(1rem,3vw,1.1rem);
+    }
+    .feedback-form button{
+      margin-top:1rem; background:var(--primary); border:none;
+      padding:0.6rem 1.2rem; border-radius:5px; font-weight:600;
+      color:#111; cursor:pointer; box-shadow:var(--glow); font-size:clamp(1rem,3vw,1.1rem);
+    }
+    .feedback-confirm{ margin-top:1rem; color:var(--accent); }
+
+    .review-box{
+      margin-top:2rem; background:rgba(255,255,255,0.05);
+      padding:1rem; border-radius:10px; text-align:left;
+      box-shadow:0 0 12px rgba(0,255,255,0.1);
+    }
+    .review-box h4{ color:var(--primary); margin-bottom:0.5rem; }
+    .stars{ color:gold; font-size:1.2rem; }
+    /* Toggle Button Styling */
+#themeToggle {
+  margin-left: 1.5rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.3s ease;
+}
+#themeToggle:hover {
+  color: var(--primary);
+}
+/* Global dark theme base */
+body.dark-theme {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+/* Header */
+body.dark-theme header {
+  background-color: #1f1f1f;
+  color: #fff;
+}
+
+/* Navigation Links */
+body.dark-theme nav a,
+body.dark-theme .sidebar a,
+body.dark-theme button {
+  color: #fff;
+}
+
+/* Sidebar */
+body.dark-theme .sidebar {
+  background-color: #1a1a1a;
+}
+
+/* Main content, sections, etc. */
+body.dark-theme section,
+body.dark-theme main,
+body.dark-theme footer {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+/* Input fields (if any) */
+body.dark-theme input,
+body.dark-theme textarea {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border: 1px solid #444;
+}
+
+
+/* Light Theme Overrides */
+body.light-mode {
+  background: #f5f5f5;
+  color: #111;
+}
+body.light-mode header {
+  background: rgba(255, 255, 255, 0.85);
+}
+body.light-mode .modal,
+body.light-mode .result,
+body.light-mode .upload-area,
+body.light-mode .review-box,
+body.light-mode .feedback-form input,
+body.light-mode .feedback-form textarea {
+  background: #fff;
+  color: #000;
+}.bubble {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, #ffb347, #ff6f61);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.7;
+  animation: bubbleUp 1s ease-out forwards;
+}
+
+@keyframes bubbleUp {
+  0% {
+    transform: scale(1) translateY(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(3) translateY(-50px);
+    opacity: 0;
+  }
+}
+
+body.light-mode nav a,
+body.light-mode .auth-link {
+  color: #222;
+}
+body.light-mode nav a:hover,
+body.light-mode .auth-link:hover {
+  color: var(--primary);
+}
+body.light-mode footer {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+.disclaimer {
+  background-color: rgba(255, 0, 0, 0.08);
+  color: #ff4444;
+  border-left: 6px solid #ff2222;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem auto;
+  max-width: 800px;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.15);
+  text-align: center;
+  animation: pulseRed 2s infinite;
+}
+
+@keyframes pulseRed {
+  0% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
+  100% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.2); }
+}
+
+
+    footer{
+      text-align:center; padding:2rem 1rem; color:#aaa; font-size:clamp(0.8rem,3vw,1rem);
+      background:rgba(0,0,0,0.3); margin-top:2rem;
+    }
+
+    @media(max-width:768px){
+      header{ flex-direction:column; align-items:flex-start; }
+      .menu-toggle{ display:block; }
+      nav{ display:none; flex-direction:column; width:100%; margin-top:1rem; }
+      nav.show{ display:flex; }
+    }
+    /* Sidebar for mobile */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 220px;
+      height: 100%;
+      background-color: #fbfcfd;
+      padding: 20px;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-in-out;
+      z-index: 999;
+    }
+
+    .sidebar.active {
+      transform: translateX(0);
+    }
+
+    .sidebar nav {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sidebar a, .sidebar button {
+      color: rgb(141, 6, 6);
+      text-decoration: none;
+      border: none;
+      background: none;
+      font-size: 16px;
+      text-align: left;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 220px;
+      width: calc(100% - 220px);
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      display: none;
+      z-index: 998;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      nav {
+        display: none;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+    }
+    /* Default Light Theme (no class on body) */
+body {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/* Light theme component defaults */
+header,
+main,
+section,
+footer,
+.sidebar {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/* Sidebar links/buttons light */
+.sidebar a,
+.sidebar button {
+  color: #333333;
+}
+
+/* 🌙 Dark Theme (activated by adding .dark-theme to <body>) */
+body.dark-theme {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+body.dark-theme header,
+body.dark-theme main,
+body.dark-theme section,
+body.dark-theme footer,
+body.dark-theme .sidebar {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+}
+
+body.dark-theme .sidebar a,
+body.dark-theme .sidebar button {
+  color: #f0f0f0;
+}
+
+#universalThemeToggle {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1001;
+  font-size: 20px;
+  padding: 8px 10px;
+  background-color: #fff;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Button style in dark mode */
+body.dark-theme #universalThemeToggle {
+  background-color: #333;
+  color: #fff;
+}
+
+  </style>
+</head>
+<body><!-- 🌗 Theme Toggle Button -->
+<button id="universalThemeToggle" title="Toggle Theme">🌙</button>
+
+  <!-- Initial Login/Signup modal -->
+  <div class="modal-backdrop" id="authBackdrop">
+  <div class="modal">
+    <button class="close" onclick="closeAuth()">×</button>
+    <h3 id="authTitle">Login</h3>
+
+    <!-- LOGIN FIELDS -->
+    <div id="loginFields">
+      <input type="email" id="logEmail" placeholder="Email" />
+      <input type="password" id="logPassword" placeholder="Password" />
+      <button onclick="submitLogin()">Login</button>
+      <p class="toggle">Don’t have an account? <a href="#" onclick="switchMode()">Sign up here</a></p>
+      <p class="toggle"><a href="#" onclick="forgotPassword()">Forgot password?</a></p>
+    </div>
+
+    <!-- SIGNUP FIELDS -->
+    <div id="signupFields" style="display:none;">
+      <input type="text" id="signName" placeholder="Your Name" />
+      <input type="email" id="signEmail" placeholder="Your Email" />
+      <input type="password" id="signPassword" placeholder="Create Password" />
+<input type="text" id="securityQ1" placeholder="What is your school name?" title="What is your school name?" />
+<input type="text" id="securityQ2" placeholder="What is your favourite food item?" title="What is your favourite food item?" />
+ <button onclick="submitSignup()">Sign Up</button>
+      <p class="toggle">Already have an account? <a href="#" onclick="switchMode()">Login here</a></p>
+    </div>
+  </div>
+</div>
+<!-- Delete Account Modal -->
+<div class="modal-backdrop" id="deleteBackdrop" style="display:none;">
+  <div class="modal">
+    <button class="close" onclick="closeDelete()">×</button>
+    <h3>Delete Account</h3>
+    <input type="email" id="delEmail" placeholder="Enter your email" />
+    <input type="password" id="delPassword" placeholder="Enter your password" />
+    <button onclick="submitDelete()">Delete My Account</button>
+  </div>
+</div>
+
+
+  <header>
+<header>
+  <h2>Plant Doctor AI</h2>
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#about">About</a>
+    <a href="#how">Working</a>
+    <a href="#feedback">Feedback</a>
+    <a class="auth-link" onclick="openAuth()">Registeration</a>
+    <a class="delete-link" onclick="openDeleteAccount()">Delete Account</a>
+    <button id="themeToggle" title="Toggle Theme">🌙</button>
+  </nav>
+</header>
+</header>
+<button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+<!-- Sidebar for Mobile -->
+  <div class="sidebar" id="sidebar">
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#how">Working</a>
+      <a href="#feedback">Feedback</a>
+      <a onclick="openAuth()">Registration</a>
+      <a onclick="openDeleteAccount()">Delete Account</a>
+      <button id="themeToggleMobile" title="Toggle Theme">🌙</button>
+    </nav>
+  </div>
+
+  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="container" id="home">
+    <h1>Plant Health Detector</h1>
+    <label class="upload-area" id="uploadArea">
+      <p>Drag & drop or click to upload leaf image</p>
+      <input id="fileUpload" type="file" accept="image/*" />
+    </label>
+    <img id="previewImage" class="preview" style="display:none;" />
+    <div id="resultBox" class="result" style="display:none;"></div>
+  </div>
+<div style="overflow: hidden; white-space: nowrap; background-color: #fffecd; color: #5e0303; border: 1px solid #ece909; padding: 10px; font-size: 14px; font-weight: bold; position: relative;">
+  <div style="display: inline-block; animation: scroll-left 15s linear infinite;">
+    ⚠️ This is an educational project. Do NOT rely on predictions — it may produce errors and inaccurate results.Can make mistakes.
+  </div>
+</div>
+
+<style>
+  @keyframes scroll-left {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+</style>
+<div id="disclaimer-timer" style="
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fff3cd;
+  color: #5e0303;
+  border: 1px solid #ece909;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  z-index: 9999;
+  transition: opacity 1s ease-in-out;
+">
+  ⚠️ This is an educational project. Do NOT rely on predictions — it may produce errors and inaccurate results.
+</div>
+
+<script>
+  // Hide disclaimer after 7 seconds
+  setTimeout(() => {
+    const el = document.getElementById('disclaimer-timer');
+    el.style.opacity = '0';
+    setTimeout(() => el.style.display = 'none', 1000); // remove after fade
+  }, 7000);
+</script>
+
+
+  <div class="container" id="about">
+    <h2>About the Author</h2>
+    <p>A final‑year B.Tech CSE student who combined deep learning and frontend skills to create an AI‑powered disease detector. Passionate about building tools that matter.</p>
+  </div>
+
+
+
+  <div class="container" id="how">
+    <h2>How It Works</h2>
+    <p>Upload a plant leaf image. Our AI instantly analyzes it and shows if it's <strong>Healthy</strong> or <strong>Diseased</strong> (e.g. Blight, Spot, Rust), with color-coded labels and definitions.</p>
+  </div>
+
+  <div class="container" id="feedback">
+    <h2>Feedback</h2>
+    <div class="feedback-form">
+      <input type="text" id="fbName" placeholder="Your Name" />
+      <input type="email" id="fbEmail" placeholder="Your Email" />
+      <textarea id="fbMessage" placeholder="Your feedback..." rows="4"></textarea>
+      <select id="fbRating">
+        <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+        <option value="4">⭐⭐⭐⭐ (4)</option>
+        <option value="3">⭐⭐⭐ (3)</option>
+        <option value="2">⭐⭐ (2)</option>
+        <option value="1">⭐ (1)</option>
+      </select>
+      <button onclick="submitFeedback()">Submit</button>
+      <p class="feedback-confirm" id="fbConfirm" style="display:none;">✅ Thanks for your feedback!</p>
+    </div>
+    <div id="reviews"></div>
+  </div>
+
+  <footer>&copy; 2025 Plant Doctor AI — Built with 💚 and Python.This Model can make mistakes.</footer>
+<script>
+  /* Nav toggle */
+  function toggleNav() {
+    document.getElementById('navMenu').classList.toggle('show');
+  }
+
+  /* Auth modal logic */
+  let isLogin = true;
+  let userCount = 0;
+  const users = JSON.parse(localStorage.getItem("plantAppUsers") || "[]");
+
+  function openAuth() {
+    document.getElementById('authBackdrop').style.display = 'flex';
+  }
+
+ /* function closeAuth() {
+    document.getElementById('authBackdrop').style.display = 'none';
+  }
+
+  function switchMode() {
+  isLogin = !isLogin;
+  document.getElementById('authTitle').innerText = isLogin ? 'Login' : 'Sign Up';
+  document.getElementById('signupFields').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('loginFields').style.display = isLogin ? 'block' : 'none';
+}
+
+
+  function submitLogin() {
+    const email = document.getElementById('logEmail').value.trim();
+    const pass = document.getElementById('logPassword').value.trim();
+
+    const found = users.find(u => u.email === email && u.password === pass);
+    if (!email || !pass) {
+      alert("Please enter both email and password.");
+      return;
+    }
+    if (!found) {
+      alert("Incorrect email or password.");
+      return;
+    }
+    alert('Welcome back, ' + email + '!');
+    closeAuth();
+  }
+
+  function submitSignup() {
+    const name = document.getElementById('signName').value.trim();
+    const email = document.getElementById('signEmail').value.trim();
+    const password = document.getElementById('signPassword').value.trim();
+    const q1 = document.getElementById('securityQ1').value.trim();
+    const q2 = document.getElementById('securityQ2').value.trim();
+
+    if (!name || !email || !password || !q1 || !q2) {
+      alert("Please fill in all signup fields.");
+      return;
+    }
+
+    const exists = users.find(u => u.email === email);
+    if (exists) {
+      alert("User already registered with this email.");
+      return;
+    }
+
+    const newUser = { name, email, password, q1, q2 };
+    users.push(newUser);
+    localStorage.setItem("plantAppUsers", JSON.stringify(users));
+    alert('Thank you for signing up, ' + name + '!');
+    userCount++;
+    updateUserCount();
+    closeAuth();
+  }
+
+  function forgotPassword() {
+    const email = prompt("Enter your registered email:");
+    if (!email) return;
+    const user = users.find(u => u.email === email);
+    if (!user) {
+      alert("No user found with this email.");
+      return;
+    }
+
+    const ans1 = prompt("What is your school name?");
+    const ans2 = prompt("What is your favourite food item?");
+
+    if (ans1 === user.q1 && ans2 === user.q2) {
+      const newPass = prompt("Enter your new password:");
+      if (newPass) {
+        user.password = newPass;
+        localStorage.setItem("plantAppUsers", JSON.stringify(users));
+        alert("Password successfully updated.");
+      }
+    } else {
+      alert("Security answers did not match.");
+    }
+  }
+
+  function updateUserCount() {
+    const userCounter = document.getElementById("userCount");
+    if (userCounter) {
+      userCounter.innerHTML = `👤 Registered Users: <strong>${users.length}</strong>`;
+    }
+  }
+*/
+  /* Feedback logic */
+  function submitFeedback() {
+    const name = fbName.value.trim();
+    const email = fbEmail.value.trim();
+    const msg = fbMessage.value.trim();
+    const rating = fbRating.value;
+
+    if (!name || !email || !msg) return alert('Please fill all fields');
+
+    const review = { name, msg, rating };
+    let stored = JSON.parse(localStorage.getItem('plantReviews')) || [];
+    stored.push(review);
+    localStorage.setItem('plantReviews', JSON.stringify(stored));
+
+    fbConfirm.style.display = 'block';
+    fbName.value = '';
+    fbEmail.value = '';
+    fbMessage.value = '';
+    fbRating.value = '5';
+    renderReviews();
+  }
+
+  function renderReviews() {
+    const rc = document.getElementById('reviews');
+    rc.innerHTML = '<h2>Reviews</h2>';
+    const stored = JSON.parse(localStorage.getItem('plantReviews')) || [];
+    stored.forEach(r => {
+      rc.innerHTML += `
+        <div class="review-box">
+          <h4>${r.name}</h4>
+          <div class="stars">${'⭐'.repeat(r.rating)}</div>
+          <p>${r.msg}</p>
+        </div>`;
+    });
+  }
+
+  /* Upload & prediction logic */
+  uploadArea.addEventListener('click', () => fileUpload.click());
+  ['dragover', 'dragleave', 'drop'].forEach(ev => uploadArea.addEventListener(ev, e => {
+    if (ev == 'dragover') {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    }
+    if (ev == 'dragleave') uploadArea.classList.remove('dragover');
+    if (ev == 'drop') {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      file && handleUpload(file);
+    }
+  }));
+  fileUpload.addEventListener('change', () => {
+    const f = fileUpload.files[0];
+    f && handleUpload(f);
+  });
+
+  function handleUpload(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      previewImage.src = e.target.result;
+      previewImage.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+    resultBox.style.display = 'block';
+    resultBox.textContent = '⌛ Analyzing leaf...';
+
+    const fd = new FormData();
+    fd.append('image', file);
+    fetch('/predict', { method: 'POST', body: fd })
+      .then(r => r.json())
+      .then(data => {
+        const res = data.result || 'Unknown', def = data.definition || '', healthy = data.healthy ? 'Healthy' : 'Diseased';
+        resultBox.innerHTML = `
+          🧪 <strong>Status:</strong> ${healthy} <br>
+          <strong>Disease:</strong> ${res} <br>
+          <strong>Definition:</strong> ${def}
+        `;
+      })
+      .catch(() => { resultBox.textContent = '❌ Error occurred.'; });
+  }
+
+  const themeToggle = document.getElementById("themeToggle");
+
+  if (localStorage.getItem("theme") === "light") {
+    document.body.classList.add("light-mode");
+    themeToggle.textContent = "☀️";
+  }
+
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("light-mode");
+    const isLight = document.body.classList.contains("light-mode");
+    themeToggle.textContent = isLight ? "☀️" : "🌙";
+    localStorage.setItem("theme", isLight ? "light" : "dark");
+  });
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const loginBtn = document.querySelector('.modal button[onclick="submitLogin()"]');
+    const forgot = document.createElement("p");
+    forgot.innerHTML = `<a href="#" onclick="forgotPassword()" style="color:#bbb;font-size:0.9rem;text-decoration:underline;">Forgot Password?</a>`;
+    loginBtn.insertAdjacentElement("afterend", forgot);
+
+    const header = document.querySelector("header");
+    const counter = document.createElement("div");
+    counter.id = "userCount";
+    counter.style.cssText = "font-size:0.9rem;color:#ccc;margin-top:0.5rem;text-align:right;width:100%;";
+    header.appendChild(counter);
+    updateUserCount();
+  }); document.addEventListener('click', function(e) {
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.style.left = e.pageX + 'px';
+  bubble.style.top = e.pageY + 'px';
+  document.body.appendChild(bubble);
+  setTimeout(() => bubble.remove(), 1000);
+});
+document.addEventListener('mousemove', function(e) {
+  const sparkle = document.createElement('div');
+  sparkle.className = 'bubble';
+  sparkle.style.left = e.pageX + 'px';
+  sparkle.style.top = e.pageY + 'px';
+  sparkle.style.width = sparkle.style.height = Math.random() * 6 + 4 + 'px';
+  document.body.appendChild(sparkle);
+  setTimeout(() => sparkle.remove(), 800);
+});
+
+function openDeleteAccount() {
+  document.getElementById('deleteBackdrop').style.display = 'flex';
+}
+/*
+function closeDelete() {
+  document.getElementById('deleteBackdrop').style.display = 'none';
+}
+
+function submitDelete() {
+  const email = document.getElementById('delEmail').value.trim();
+  const password = document.getElementById('delPassword').value.trim();
+
+  if (!email || !password) {
+    alert("Please enter both email and password.");
+    return;
+  }
+
+  const users = JSON.parse(localStorage.getItem("plantAppUsers") || "[]");
+
+  const userIndex = users.findIndex(u => u.email === email && u.password === password);
+
+  if (userIndex === -1) {
+    alert("Incorrect email or password.");
+    return;
+  }
+
+  // Delete user
+  users.splice(userIndex, 1);
+  localStorage.setItem("plantAppUsers", JSON.stringify(users));
+  alert("Your account has been deleted successfully.");
+
+  // Reset form, close modal, update count
+  document.getElementById('delEmail').value = '';
+  document.getElementById('delPassword').value = '';
+  closeDelete();
+  updateUserCount();
+}*/
+
+function updateUserCount() {
+  const users = JSON.parse(localStorage.getItem("plantAppUsers") || "[]");
+  const userCounter = document.getElementById("userCount");
+  if (userCounter) {
+    userCounter.innerHTML = `👤 Registered Users: <strong>${users.length}</strong>`;
+  }
+}
+
+
+  window.addEventListener("load", () => {
+    openAuth();
+    renderReviews();
+     updateUserCount(); // 🟢 Add this line
+  });
+  
+  const API_URL = "http://localhost:3000/api";
+
+  function switchMode() {
+    const login = document.getElementById('loginFields');
+    const signup = document.getElementById('signupFields');
+    const title = document.getElementById('authTitle');
+    if (login.style.display === 'none') {
+      login.style.display = 'block';
+      signup.style.display = 'none';
+      title.innerText = 'Login';
+    } else {
+      login.style.display = 'none';
+      signup.style.display = 'block';
+      title.innerText = 'Sign Up';
+    }
+  }
+
+  function closeAuth() {
+    document.getElementById('authBackdrop').style.display = 'none';
+  }
+
+  function closeDelete() {
+    document.getElementById('deleteBackdrop').style.display = 'none';
+  }
+
+  async function submitSignup() {
+    const name = document.getElementById("signName").value;
+    const email = document.getElementById("signEmail").value;
+    const password = document.getElementById("signPassword").value;
+    const q1 = document.getElementById("securityQ1").value;
+    const q2 = document.getElementById("securityQ2").value;
+
+    try {
+      const res = await fetch(`${API_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, q1, q2 })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("✅ Registered successfully");
+        localStorage.setItem("token", data.token || "");
+        localStorage.setItem("name", name);
+        const users = JSON.parse(localStorage.getItem("plantAppUsers") || "[]");
+  users.push({ name, email });
+  localStorage.setItem("plantAppUsers", JSON.stringify(users));
+
+        closeAuth();
+        updateUserCount(); 
+      } else {
+        alert(`❌ ${data.error}`);
+      }
+    } catch (err) {
+      alert("❌ Signup failed");
+    }
+  }
+
+  async function submitLogin() {
+    const email = document.getElementById("logEmail").value;
+    const password = document.getElementById("logPassword").value;
+
+    try {
+      const res = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("✅ Logged in");
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("name", data.name);
+        closeAuth();
+      } else {
+        alert(`❌ ${data.error}`);
+      }
+    } catch (err) {
+      alert("❌ Login failed");
+    }
+  }
+
+  async function submitDelete() {
+    const email = document.getElementById("delEmail").value;
+    const password = document.getElementById("delPassword").value;
+
+    try {
+      const res = await fetch(`${API_URL}/delete`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("🗑️ Account deleted");
+        localStorage.clear();
+        closeDelete();
+      } else {
+        alert(`❌ ${data.error}`);
+      }
+    } catch (err) {
+      alert("❌ Could not delete account");
+    }
+  }
+
+  async function forgotPassword() {
+    const email = prompt("Enter your email:");
+    const q1 = prompt("What is your school name?");
+    const q2 = prompt("What is your favourite food item?");
+    const newPass = prompt("Enter your new password:");
+
+    if (!email || !q1 || !q2 || !newPass) return alert("All fields required!");
+
+    try {
+      const res = await fetch(`${API_URL}/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, q1, q2, newPass })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("✅ Password updated");
+      } else {
+        alert(`❌ ${data.error}`);
+      }
+    } catch (err) {
+      alert("❌ Failed to reset password");
+    }
+  }
+
+function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('overlay').classList.toggle('active');
+    }
+    function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('overlay').classList.toggle('active');
+  }
+
+ 
+
+  function openDeleteAccount() {
+    alert('Open Delete Account Modal');
+  }
+
+  
+
+function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+  }
+
+  // This ensures both desktop & mobile buttons work
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+    document.getElementById('themeToggleMobile')?.addEventListener('click', toggleTheme);
+  });
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.getElementById('universalThemeToggle');
+
+    toggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark-theme');
+      // Swap icon
+      toggleBtn.textContent = document.body.classList.contains('dark-theme') ? '🌞' : '🌙';
+    });
+  });
+</script>
+
+</body>
+</html>
